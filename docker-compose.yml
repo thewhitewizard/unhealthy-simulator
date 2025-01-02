@@ -1,0 +1,23 @@
+services:
+  unhealthy-simulator:
+    image: unhealthy-simulator
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "-s", "http://127.0.0.1:3000/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    labels:
+      - autoheal=true
+
+  autoheal:
+    image: willfarrell/autoheal:1.2.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_START_PERIOD=20
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_ONLY_MONITOR_RUNNING=true    
